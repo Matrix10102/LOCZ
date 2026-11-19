@@ -12,10 +12,11 @@
 @media(max-width:650px){.wordmark{width:122px;height:53px}.hero-logo-image{width:93%;top:47%}}
 
 /* Improve readability of product ordering and availability details. */
-.product-showcase .status-tag{font-size:12px;letter-spacing:.12em;color:#e1edf5}
-.product-info .muted{font-size:14px;line-height:1.8;color:#b1c0cc}
-.order-widget label{font-size:14px;font-weight:600;color:#e0eaf1}
-.order-widget input{font-size:15px;min-height:46px}
-.order-note{font-size:12px;line-height:1.7;color:#b0c0cc}
-.spec-list span{font-size:11px;color:#b5c6d2;letter-spacing:.12em}
-.spec-list b{font-size:14px;color:#f0f5f8}
+.product-showcase .status-tag{font-size:14px;letter-spacing:.1em;color:#fff}
+.product-info>.muted{font-size:17px;line-height:1.8;color:#e0eaf1;margin-bottom:22px}
+.order-widget label{font-size:17px;font-weight:700;color:#f4f7fa}
+.order-widget input{font-size:17px;min-height:52px}
+.order-note{font-size:15px;line-height:1.7;color:#d3e0e9}
+.spec-list>div{padding:16px 0}
+.spec-list span{font-size:14px;line-height:1.5;color:#d1e0e9;letter-spacing:.1em}
+.spec-list b{font-size:16px;color:#fff;font-weight:600}
