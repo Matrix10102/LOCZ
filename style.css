@@ -10,3 +10,12 @@
 .contact-list a{color:#dcecf6;text-decoration:underline;text-decoration-color:rgba(89,190,242,.48);text-underline-offset:3px;transition:color .2s,text-decoration-color .2s}.contact-list a:hover{color:#8bdbff;text-decoration-color:#8bdbff}.contact-links{display:flex;flex-direction:column;gap:3px}.contact-whatsapp{color:#92e4bc!important;text-decoration-color:rgba(91,212,153,.45)!important}
 .order-widget{display:grid;grid-template-columns:auto 110px;align-items:center;gap:7px 14px;margin:25px 0 12px}.order-widget label{font-size:11px;color:#c6d5df}.order-widget input{width:100%;border:1px solid rgba(155,194,220,.22);background:#071421;color:#f4f7fa;padding:10px 12px;font:13px var(--sans);outline:none}.order-widget input:focus{border-color:#299bda}.order-note{grid-column:1/-1;margin:0;color:#8296a7;font-size:10px;line-height:1.6}
 @media(max-width:650px){.wordmark{width:122px;height:53px}.hero-logo-image{width:93%;top:47%}}
+
+/* Improve readability of product ordering and availability details. */
+.product-showcase .status-tag{font-size:12px;letter-spacing:.12em;color:#e1edf5}
+.product-info .muted{font-size:14px;line-height:1.8;color:#b1c0cc}
+.order-widget label{font-size:14px;font-weight:600;color:#e0eaf1}
+.order-widget input{font-size:15px;min-height:46px}
+.order-note{font-size:12px;line-height:1.7;color:#b0c0cc}
+.spec-list span{font-size:11px;color:#b5c6d2;letter-spacing:.12em}
+.spec-list b{font-size:14px;color:#f0f5f8}
