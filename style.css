@@ -20,3 +20,4 @@
 .spec-list>div{padding:16px 0}
 .spec-list span{font-size:14px;line-height:1.5;color:#d1e0e9;letter-spacing:.1em}
 .spec-list b{font-size:16px;color:#fff;font-weight:600}
+.upcoming-art .promo-image{object-fit:contain;background:radial-gradient(ellipse at center,rgba(16,92,150,.2),transparent 70%),#081522}
