@@ -4,16 +4,16 @@
   const cartKey = 'locz-cart-v1';
   const products = {
     'detergent-liquid': {
-      id: 'detergent-liquid', name: 'Detergent Liquid', category: 'Laundry', status: 'available',
+      id: 'detergent-liquid', name: 'Detergent Liquid', category: 'Laundry', status: 'coming-soon',
       image: 'assets/detergent-liquid.jpg', alt: 'LOCZ Detergent Liquid bottle with folded towels',
-      description: 'LOCZ Detergent Liquid is currently available to order.',
-      extra: 'Contact LOCZ to confirm available sizes and product information before ordering.'
+      description: 'LOCZ Detergent Liquid is an upcoming product.',
+      extra: 'This product is not yet available for purchase.'
     },
     'carpet-cleaning': {
-      id: 'carpet-cleaning', name: 'Carpet Cleaning', category: 'Carpet', status: 'coming-soon',
+      id: 'carpet-cleaning', name: 'Carpet Cleaning', category: 'Carpet', status: 'available',
       image: 'assets/carpet-cleaning.jpg', alt: 'LOCZ Carpet Cleaning promotional artwork',
-      description: 'LOCZ Carpet Cleaning is an upcoming product.',
-      extra: 'This product is not yet available for purchase.'
+      description: 'LOCZ Carpet Cleaning is currently available to order.',
+      extra: 'Contact LOCZ to confirm available sizes and product information before ordering.'
     },
     'laundry-care': {
       id: 'laundry-care', name: 'Laundry Care', category: 'Laundry', status: 'coming-soon',
