@@ -21,3 +21,5 @@
 .spec-list span{font-size:14px;line-height:1.5;color:#d1e0e9;letter-spacing:.1em}
 .spec-list b{font-size:16px;color:#fff;font-weight:600}
 .upcoming-art .promo-image{object-fit:contain;background:radial-gradient(ellipse at center,rgba(16,92,150,.2),transparent 70%),#081522}
+.preview-media.media-upcoming .promo-image,.preview-media.media-laundry .promo-image{object-fit:contain;background:radial-gradient(ellipse at center,rgba(16,92,150,.2),transparent 70%),#081522}
+.preview-card:hover .preview-media.media-upcoming .promo-image,.preview-card:hover .preview-media.media-laundry .promo-image{transform:none}
