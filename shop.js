@@ -194,7 +194,8 @@
       `Address: ${formData.get('address')}`,
       formData.get('note') ? `Order note: ${formData.get('note')}` : '',
       '',
-      'Please confirm product sizes, total price, payment, and delivery details. This request is not confirmed until LOCZ replies.'
+      'Payment method: Cash on delivery. Please confirm product sizes, total price, and delivery details. This order request is not confirmed until LOCZ replies.',
+      'For more details, call LOCZ: +974 5053 9675 or +974 7059 5504.'
     ].filter(Boolean);
     location.href = `https://wa.me/97470595504?text=${encodeURIComponent(lines.join('\n'))}`;
   });

@@ -15,7 +15,7 @@ Premium Qatar-based LOCZ website and WhatsApp-order storefront. The existing HTM
 
 Carpet Cleaning is currently available. Detergent Liquid and Laundry Care are marked coming soon and cannot be added to the cart. Prices, sizes, product specifications, delivery area, and delivery charges are not shown as facts because LOCZ has not supplied them.
 
-The cart stores product IDs and quantities in the visitor's browser. Checkout collects name, phone, and delivery details in the page and places them into a prefilled WhatsApp message to LOCZ at +974 7059 5504 only when the customer chooses Continue to WhatsApp. The customer reviews and sends that message. Opening WhatsApp does not confirm an order; LOCZ confirms availability, price, payment, and delivery in chat. No online payment is collected.
+The cart stores product IDs and quantities in the visitor's browser. Checkout collects name, phone, and delivery details in the page and places them into a prefilled WhatsApp message to LOCZ at +974 7059 5504 only when the customer chooses Continue to WhatsApp. Cash on delivery is the requested payment method. The customer reviews and sends the message; opening WhatsApp does not confirm an order. LOCZ confirms availability, price, and delivery details in chat. No online payment is collected.
 
 ## Development and deployment
 
