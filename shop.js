@@ -180,19 +180,11 @@
   const checkoutForm = document.querySelector('[data-checkout-form]');
   if (checkoutForm) {
     const status = document.querySelector('[data-order-status]');
-    const retryButton = document.querySelector('[data-order-retry]');
-    const submitButton = checkoutForm.querySelector('[data-checkout-submit]');
-    const resultPanel = document.querySelector('[data-order-result]');
-    const pendingKey = 'locz-pending-order-v1';
-    const supabaseUrl = String(window.LOCZ_SUPABASE_URL || '').trim().replace(/\/+$/, '');
-    const supabaseAnonKey = String(window.LOCZ_SUPABASE_ANON_KEY || '').trim();
-    const orderEndpoint = supabaseUrl && supabaseAnonKey ? `${supabaseUrl}/functions/v1/create-order` : '';
-    let pendingSubmission = null;
 
-    const showOrderStatus = (message, isError = true) => {
+    const showOrderStatus = message => {
       if (!status) return;
       status.textContent = message;
-      status.setAttribute('role', isError ? 'alert' : 'status');
+      status.setAttribute('role', 'status');
     };
     const orderPayload = () => {
       const formData = new FormData(checkoutForm);
@@ -205,29 +197,12 @@
           address: String(formData.get('address') || '').trim(),
           note: String(formData.get('note') || '').trim()
         },
-        items: Object.entries(cart).map(([id, quantity]) => ({ id, quantity })),
-        website: String(formData.get('website') || '')
+        items: Object.entries(cart).map(([id, quantity]) => ({ id, quantity }))
       };
     };
-    const samePayload = (first, second) => JSON.stringify(first) === JSON.stringify(second);
-    const getPending = () => {
-      try {
-        const saved = JSON.parse(localStorage.getItem(pendingKey) || 'null');
-        return saved && typeof saved.idempotencyKey === 'string' && saved.payload ? saved : null;
-      } catch { return null; }
-    };
-    const setPending = submission => {
-      pendingSubmission = submission;
-      try { localStorage.setItem(pendingKey, JSON.stringify(submission)); } catch { /* Checkout can continue in this tab. */ }
-    };
-    const makeIdempotencyKey = () => {
-      if (globalThis.crypto?.randomUUID) return crypto.randomUUID();
-      return `${Date.now()}-${Math.random().toString(36).slice(2)}-${Math.random().toString(36).slice(2)}`;
-    };
-    const makeWhatsAppHref = (submission, orderId) => {
-      const payload = submission.payload;
+    const makeWhatsAppHref = payload => {
       const lines = [
-        `Hi LOCZ, my website order ${orderId} was submitted.`,
+        'Hi LOCZ, I would like to place this order:',
         ...payload.items.map(item => `- ${products[item.id]?.name || item.id} — quantity ${item.quantity}`),
         '',
         `Name: ${payload.customer.name}`,
@@ -236,80 +211,9 @@
         `Address: ${payload.customer.address}`,
         payload.customer.note ? `Order note: ${payload.customer.note}` : '',
         'Payment method: Cash on delivery.',
-        'Please confirm the product price and delivery details.',
-        'More details: +974 5053 9675 / +974 7059 5504.'
+        'Please confirm availability, product price, and delivery details.'
       ].filter(Boolean);
       return `https://wa.me/97470595504?text=${encodeURIComponent(lines.join('\n'))}`;
-    };
-    const restoreForm = payload => {
-      for (const [field, value] of Object.entries({
-        name: payload.customer.name, phone: payload.customer.phone,
-        location: payload.customer.location, address: payload.customer.address,
-        note: payload.customer.note, website: payload.website || ''
-      })) {
-        const input = checkoutForm.elements.namedItem(field);
-        if (input) input.value = value;
-      }
-    };
-
-    const existingPending = getPending();
-    if (existingPending) {
-      pendingSubmission = existingPending;
-      restoreForm(existingPending.payload);
-      showOrderStatus('A previous order submission may need another attempt. Review the details and submit again; the same checkout reference will be reused.', true);
-    }
-    if (!orderEndpoint) {
-      showOrderStatus('Online order submission is not configured yet. Please contact LOCZ by WhatsApp or phone; this page will not mark an order as submitted.', true);
-      if (submitButton) submitButton.disabled = true;
-      return;
-    }
-
-    const submitOrder = async submission => {
-      if (submitButton) {
-        submitButton.disabled = true;
-        submitButton.textContent = 'Submitting order…';
-      }
-      if (retryButton) retryButton.hidden = true;
-      showOrderStatus('Submitting your order and emailing LOCZ…', false);
-      try {
-        const response = await fetch(orderEndpoint, {
-          method: 'POST',
-          headers: { 'content-type': 'application/json', apikey: supabaseAnonKey, 'idempotency-key': submission.idempotencyKey },
-          body: JSON.stringify(submission.payload)
-        });
-        const data = await response.json().catch(() => ({}));
-        if (!response.ok || !data.success || !data.orderId) {
-          if (data.orderId) submission.orderId = data.orderId;
-          setPending(submission);
-          showOrderStatus(data.message || 'We could not complete the order notification. Please retry.');
-          if (retryButton) retryButton.hidden = false;
-          return;
-        }
-
-        const sentPayload = submission.payload;
-        try { localStorage.removeItem(pendingKey); } catch { /* The server idempotency key still protects retries. */ }
-        pendingSubmission = null;
-        try { localStorage.removeItem(cartKey); } catch { /* The success view still renders. */ }
-        renderCart();
-        if (checkoutForm) checkoutForm.hidden = true;
-        if (resultPanel) {
-          resultPanel.hidden = false;
-          const idTarget = resultPanel.querySelector('[data-order-id]');
-          const whatsappTarget = resultPanel.querySelector('[data-order-whatsapp]');
-          if (idTarget) idTarget.textContent = data.orderId;
-          if (whatsappTarget) whatsappTarget.href = makeWhatsAppHref({ payload: sentPayload }, data.orderId);
-        }
-        showOrderStatus('');
-      } catch {
-        setPending(submission);
-        showOrderStatus('We could not reach the order service. Your details are saved in this browser; retry when your connection is available.');
-        if (retryButton) retryButton.hidden = false;
-      } finally {
-        if (submitButton && !checkoutForm.hidden) {
-          submitButton.disabled = false;
-          submitButton.innerHTML = 'Place COD order <span>→</span>';
-        }
-      }
     };
 
     checkoutForm.addEventListener('submit', event => {
@@ -320,14 +224,14 @@
         showOrderStatus('Your cart is empty. Add Carpet Cleaning before placing an order.');
         return;
       }
-      const reusable = pendingSubmission && samePayload(pendingSubmission.payload, payload)
-        ? pendingSubmission
-        : { idempotencyKey: makeIdempotencyKey(), payload };
-      setPending(reusable);
-      void submitOrder(reusable);
-    });
-    retryButton?.addEventListener('click', () => {
-      if (pendingSubmission) void submitOrder(pendingSubmission);
+      const whatsappUrl = makeWhatsAppHref(payload);
+      const fallbackLink = checkoutForm.querySelector('[data-whatsapp-fallback]');
+      if (fallbackLink) {
+        fallbackLink.href = whatsappUrl;
+        fallbackLink.hidden = false;
+      }
+      window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+      showOrderStatus('WhatsApp opened with your order details. Tap Send in WhatsApp to submit your order; LOCZ will confirm the price and delivery. If WhatsApp did not open, check your browser pop-up settings and try again.');
     });
   }
 
