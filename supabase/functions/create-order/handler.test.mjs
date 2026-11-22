@@ -36,8 +36,9 @@ class SupabaseStub {
 const createEnv = () => ({
   SUPABASE_URL: 'https://locz-test.supabase.co',
   SUPABASE_SERVICE_ROLE_KEY: 'service-role-test-only',
-  RESEND_API_KEY: 'resend-test-only',
-  LOCZ_FROM_EMAIL: 'LOCZ Orders <orders@loczqatar.dpdns.org>',
+  BREVO_API_KEY: 'brevo-test-only',
+  LOCZ_FROM_EMAIL: 'loczqatar@gmail.com',
+  LOCZ_FROM_NAME: 'LOCZ Orders',
   LOCZ_NOTIFICATION_EMAIL: 'loczqatar@gmail.com',
   ALLOWED_ORIGINS: 'https://matrix10102.github.io'
 });
@@ -55,7 +56,7 @@ test('valid order sends one branded owner email and returns a unique order refer
   globalThis.fetch = async (url, options) => {
     if (String(url).includes('.supabase.co/rest/v1/')) return supabase.fetch(String(url), options);
     emails.push({ options, body: JSON.parse(options.body) });
-    return Response.json({ id: 'resend_email_test_1' });
+    return Response.json({ messageId: 'brevo_email_test_1' });
   };
   try {
     const response = await handleOrderRequest(createRequest(payload()), createEnv());
@@ -64,10 +65,12 @@ test('valid order sends one branded owner email and returns a unique order refer
     assert.equal(data.success, true);
     assert.match(data.orderId, /^LOCZ-\d{8}-[A-F0-9]{8}$/);
     assert.equal(emails.length, 1);
-    assert.equal(emails[0].body.to[0], 'loczqatar@gmail.com');
+    assert.deepEqual(emails[0].body.to, [{ email: 'loczqatar@gmail.com' }]);
+    assert.deepEqual(emails[0].body.sender, { name: 'LOCZ Orders', email: 'loczqatar@gmail.com' });
+    assert.equal(emails[0].options.headers['api-key'], 'brevo-test-only');
+    assert.match(emails[0].body.headers.idempotencyKey, /^[0-9a-f]{8}-[0-9a-f]{4}-5[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
     assert.match(emails[0].body.subject, new RegExp(data.orderId));
-    assert.match(emails[0].body.html, /Cash on delivery/);
-    assert.equal(emails[0].options.headers['Idempotency-Key'], `locz-order-${data.orderId}`);
+    assert.match(emails[0].body.htmlContent, /Cash on delivery/);
   } finally { globalThis.fetch = originalFetch; }
 });
 
@@ -78,7 +81,7 @@ test('duplicate submission returns the original reference without sending a seco
   globalThis.fetch = async (url, options) => {
     if (String(url).includes('.supabase.co/rest/v1/')) return supabase.fetch(String(url), options);
     sends += 1;
-    return Response.json({ id: 'resend_email_test_2' });
+    return Response.json({ messageId: 'brevo_email_test_2' });
   };
   try {
     const first = await handleOrderRequest(createRequest(payload()), createEnv());
@@ -106,7 +109,7 @@ test('invalid details and unavailable products are rejected before any email cal
   } finally { globalThis.fetch = originalFetch; }
 });
 
-test('email delivery failure is retryable and Resend receives the same idempotency key', async () => {
+test('email delivery failure is retryable and Brevo receives an order-stable idempotency key', async () => {
   const originalFetch = globalThis.fetch;
   const supabase = new SupabaseStub();
   let count = 0;
@@ -114,8 +117,8 @@ test('email delivery failure is retryable and Resend receives the same idempoten
   globalThis.fetch = async (url, options) => {
     if (String(url).includes('.supabase.co/rest/v1/')) return supabase.fetch(String(url), options);
     count += 1;
-    emailKeys.push(options.headers['Idempotency-Key']);
-    return count === 1 ? Response.json({ message: 'temporary error' }, { status: 503 }) : Response.json({ id: 'resend_email_retry' });
+    emailKeys.push(JSON.parse(options.body).headers.idempotencyKey);
+    return count === 1 ? Response.json({ message: 'temporary error' }, { status: 503 }) : Response.json({ messageId: 'brevo_email_retry' });
   };
   try {
     const failed = await handleOrderRequest(createRequest(payload()), createEnv());
@@ -126,7 +129,7 @@ test('email delivery failure is retryable and Resend receives the same idempoten
     const retriedBody = await retried.json();
     assert.equal(retried.status, 200);
     assert.equal(retriedBody.orderId, failedBody.orderId);
-    assert.deepEqual(emailKeys, [`locz-order-${failedBody.orderId}`, `locz-order-${failedBody.orderId}`]);
+    assert.equal(emailKeys[0], emailKeys[1]);
   } finally { globalThis.fetch = originalFetch; }
 });
 
@@ -137,7 +140,7 @@ test('same idempotency key cannot change order contents and foreign origins are 
   globalThis.fetch = async (url, options) => {
     if (String(url).includes('.supabase.co/rest/v1/')) return supabase.fetch(String(url), options);
     emails += 1;
-    return Response.json({ id: 'resend_email_test_3' });
+    return Response.json({ messageId: 'brevo_email_test_3' });
   };
   try {
     await handleOrderRequest(createRequest(payload()), createEnv());

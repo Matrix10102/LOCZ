@@ -29,28 +29,39 @@ async function rpc(env, name, body) {
   return data;
 }
 
+async function emailIdempotencyKey(orderId) {
+  const bytes = new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(`locz-order-email:${orderId}`))).slice(0, 16);
+  bytes[6] = (bytes[6] & 0x0f) | 0x50;
+  bytes[8] = (bytes[8] & 0x3f) | 0x80;
+  const hex = Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('');
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+}
+
 async function sendOwnerEmail(env, orderId, payload, createdAt) {
-  const apiKey = envValue(env, 'RESEND_API_KEY');
+  const apiKey = envValue(env, 'BREVO_API_KEY');
   const from = envValue(env, 'LOCZ_FROM_EMAIL');
+  const fromName = envValue(env, 'LOCZ_FROM_NAME') || 'LOCZ Orders';
   const to = envValue(env, 'LOCZ_NOTIFICATION_EMAIL') || 'loczqatar@gmail.com';
   if (!apiKey || !from) throw new Error('Email sender is not configured.');
   const email = buildOrderEmail({ ...payload, orderId, createdAt });
-  const response = await fetch('https://api.resend.com/emails', {
+  const response = await fetch('https://api.brevo.com/v3/smtp/email', {
     method: 'POST',
     headers: {
-      authorization: `Bearer ${apiKey}`,
-      'content-type': 'application/json',
-      'Idempotency-Key': `locz-order-${orderId}`
+      'api-key': apiKey,
+      'content-type': 'application/json'
     },
     body: JSON.stringify({
-      from, to: [to],
+      sender: { name: fromName, email: from },
+      to: [{ email: to }],
       subject: `NEW LOCZ CUSTOMER ORDER — ${orderId}`,
-      html: email.html, text: email.text
+      htmlContent: email.html,
+      textContent: email.text,
+      headers: { idempotencyKey: await emailIdempotencyKey(orderId) }
     })
   });
   const data = await response.json().catch(() => ({}));
-  if (!response.ok || !data.id) throw new Error('Email provider did not accept the order notification.');
-  return data.id;
+  if (!response.ok || !data.messageId) throw new Error('Email provider did not accept the order notification.');
+  return data.messageId;
 }
 
 export async function handleOrderRequest(request, env) {
