@@ -5,6 +5,9 @@
 !.env.*.example
 .npmrc
 .git-credentials
+supabase/.temp/
+supabase/.branches/
+supabase/functions/.env
 
 # Credentials and private keys
 credentials.json

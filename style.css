@@ -91,6 +91,15 @@
 .checkout-panel textarea{resize:vertical;min-height:74px}
 .checkout-button{width:100%;margin-top:18px;border:0;cursor:pointer}
 .checkout-panel .form-note{margin:12px 0 0}
+.checkout-honeypot{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}
+.order-status{color:#ffd28c!important}
+.order-status:empty{display:none}
+.order-result{margin-top:24px;padding:20px;background:#071421;border:1px solid rgba(113,221,255,.3);color:#eaf5fb}
+.order-result[hidden]{display:none}
+.order-result .eyebrow{margin:0 0 10px;color:#8de0ff}
+.order-result h3{font-size:22px;margin:0 0 14px}
+.order-result p{font-size:14px;line-height:1.7;color:#c2d0db}
+.order-result a:not(.button){color:#8de0ff}
 .cart-toast{position:fixed;right:24px;bottom:24px;z-index:30;max-width:min(360px,calc(100vw - 32px));padding:15px 19px;background:#0b2b42;border:1px solid rgba(113,221,255,.45);color:#f3faff;box-shadow:0 12px 35px rgba(0,0,0,.35);opacity:0;transform:translateY(12px);pointer-events:none;transition:opacity .2s,transform .2s}
 .cart-toast.visible{opacity:1;transform:translateY(0)}
 @media(max-width:1000px){.shop-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.shop-toolbar{grid-template-columns:minmax(180px,1fr) 160px 160px}.cart-layout{gap:26px}.shop-product-detail .product-showcase{min-height:430px}}
