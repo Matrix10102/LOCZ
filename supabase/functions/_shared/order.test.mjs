@@ -9,7 +9,7 @@ const valid = () => ({
 });
 
 test('accepts only server-listed, currently available Carpet Cleaning', () => {
-  const result = validateOrder(valid());
+  const result = validateOrder({ ...valid(), paymentMethod: 'credit-card' });
   assert.equal(result.error, undefined);
   assert.deepEqual(result.order.items, [{ id: 'carpet-cleaning', name: 'Carpet Cleaning', quantity: 2 }]);
   assert.equal(result.order.paymentMethod, 'Cash on delivery');
